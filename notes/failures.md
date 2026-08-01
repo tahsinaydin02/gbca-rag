@@ -1,3 +1,4 @@
+cat > notes/failures.md <<'MD'
 # Failure log
 
 Things that broke, what caused them, how they were found.

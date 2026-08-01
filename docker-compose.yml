@@ -1,0 +1,9 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: gbca-qdrant
+    ports:
+      - "6333:6333"   # REST + web dashboard
+      - "6334:6334"   # gRPC
+    volumes:
+      - ./data/qdrant:/qdrant/storage

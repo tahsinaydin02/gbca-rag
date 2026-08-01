@@ -6,6 +6,7 @@ dependencies = [
     "boto3>=1.43.62",
     "lxml>=6.1.1",
     "requests>=2.34.2",
+    "tiktoken>=0.13.0",
 ]
 
 [dependency-groups]

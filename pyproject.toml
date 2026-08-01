@@ -13,3 +13,10 @@ dev = [
     "pre-commit>=4.6.1",
     "ruff>=0.16.1",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -1,0 +1,23 @@
+# Corpus definition for gbca-rag
+# Frozen 2026-08-01. Rerun ingest/search.py to refresh configs/pmcid_list.json.
+
+source: PMC Open Access Subset (AWS S3 bucket: pmc-oa-opendata)
+license_filter: cc0_license OR cc_by_license   # commercial-use permitted only
+
+topics:
+  - '"gadolinium-based contrast agent"[Title/Abstract]'
+  - '"nephrogenic systemic fibrosis"[Title/Abstract]'
+  - 'gadolinium[Title/Abstract] AND (retention[Title] OR deposition[Title])'
+  - 'gadolinium[Title/Abstract] AND ("renal impairment"[Title/Abstract] OR eGFR[Title/Abstract])'
+  - 'gadolinium[Title/Abstract] AND (macrocyclic[Title/Abstract] OR linear[Title])'
+
+# Topics are OR-ed, then AND-ed with the license filter.
+# Deliberately narrow: a broad `gadolinium` full-text search returns ~23,500
+# loosely related articles. Topic-scoped retrieval keeps the corpus coherent
+# enough to write multi-hop and unanswerable gold-set questions against it.
+
+frozen:
+  date: 2026-08-01
+  unique_pmcids: 308
+  id_list: configs/pmcid_list.json
+  s3_spot_check: 25/25 available

@@ -1,0 +1,22 @@
+llm:
+  provider: groq
+  model: llama-3.3-70b-versatile
+  temperature: 0.0          # a summariser over given text has nothing to be creative about
+  max_tokens: 700
+
+eval_llm:
+  provider: google
+  model: gemini-2.5-flash   # different family from the generator, to avoid self-preference bias
+
+retrieval:
+  variant: section
+  context_token_budget: 2000   # held constant across variants; k floats to fill it
+  max_chunks: 8
+
+embedding:
+  model: BAAI/bge-small-en-v1.5
+  dim: 384
+
+pricing:                    # USD per 1M tokens, copied from the provider's public list
+  input: null               # actual spend is zero on the free tier; the README reports
+  output: null              # token counts priced at published rates, labelled as estimates

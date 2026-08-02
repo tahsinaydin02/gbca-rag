@@ -77,3 +77,29 @@ to be scored separately or failures like this stay invisible.
 Pediatric anesthesia was assumed to be outside the corpus. It is not: PMC9668776 gives a
 propofol dose. Unanswerable gold questions must be checked against the index the same way
 answerable ones are, or the 15% unanswerable slice measures nothing.
+
+## 2026-08-03 — the gold set is incomplete by construction
+
+Retrieval fetched a hand-listed gold paragraph for only 3 of 8 answerable questions,
+yet the system answered q3, q4 and q7 correctly from articles that were never in the
+gold list. The corpus is full of review papers restating the same facts, so any
+hand-authored relevance list is a subset of what is actually relevant, and recall
+measured against it is biased low.
+
+Fix for week 2, borrowed from TREC: pool the retrieved paragraphs across all three
+chunking variants, judge that pool for relevance, and expand relevant_para_ids from it.
+Comparing variants against an incomplete ruler measures the ruler, not the variants.
+
+## 2026-08-03 — right article, wrong paragraph
+
+On q2 and q5 the retriever surfaced the correct article but not the paragraph holding
+the number, and the model correctly refused or hedged. This is a different failure from
+retrieving irrelevant material and needs a different remedy: within-article reranking,
+or a larger top-k followed by a reranker, rather than better embeddings.
+
+## 2026-08-03 — measured latency is contaminated by rate limiting
+
+Latency ran 0.43-0.79 s for the first questions and 7.9-13.8 s for the later ones. The
+model did not slow down; the free tier's 6000 tokens-per-minute cap throttled the batch.
+Any latency figure taken from a back-to-back eval run measures the quota, not the system.
+Latency has to be measured separately, with requests spaced out.

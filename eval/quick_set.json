@@ -1,0 +1,97 @@
+[
+  {
+    "id": "q1",
+    "type": "factual",
+    "question": "Which GBCAs did the ACR classify as Group I agents associated with nephrogenic systemic fibrosis?",
+    "ground_truth": "Gadodiamide, gadopentetate and gadoversetamide — first-generation simple linear agents, no longer on the market.",
+    "relevant_para_ids": [
+      "PMC12746363#p3"
+    ],
+    "note": "Dense retrieval missed this on 2026-08-04; the answer is plainly in the corpus. Regression case for hybrid search."
+  },
+  {
+    "id": "q2",
+    "type": "numeric",
+    "question": "What odds ratio of developing NSF after gadolinium exposure in advanced CKD was reported by a meta-analysis of six retrospective studies?",
+    "ground_truth": "26.7, with a 95% CI of 10.27-69.24.",
+    "relevant_para_ids": [
+      "PMC3501952#p4"
+    ]
+  },
+  {
+    "id": "q3",
+    "type": "numeric",
+    "question": "What eGFR threshold has been used to exclude patients from receiving gadolinium-based contrast?",
+    "ground_truth": "An eGFR below 30 mL/min/1.73 m2 is the threshold; patients below it are excluded or receive contrast only when the benefit outweighs the risk.",
+    "relevant_para_ids": [
+      "PMC11642361#p8",
+      "PMC11403782#p8"
+    ],
+    "note": "The query 'eGFR' retrieves EGFR (epidermal growth factor receptor) passages. Second regression case."
+  },
+  {
+    "id": "q4",
+    "type": "multi_hop",
+    "question": "At what dose was gadopiclenol found non-inferior to gadobutrol, and why can it be dosed lower?",
+    "ground_truth": "Gadopiclenol at 0.05 mmol/kg was non-inferior to gadobutrol at 0.1 mmol/kg in the PICTURE trial; it can be dosed lower because its T1 relaxivity is much higher than other extracellular agents.",
+    "relevant_para_ids": [
+      "PMC10480682#p17",
+      "PMC11051151#p11"
+    ]
+  },
+  {
+    "id": "q5",
+    "type": "numeric",
+    "question": "How does the half-life of the residual excretion phase compare between linear and macrocyclic GBCAs?",
+    "ground_truth": "About 25 hours for currently approved linear agents versus about 6 hours for a macrocyclic agent, roughly 5-8 times longer.",
+    "relevant_para_ids": [
+      "PMC10957598#p34"
+    ]
+  },
+  {
+    "id": "q6",
+    "type": "multi_hop",
+    "question": "How did gadolinium retention rank across gadodiamide, gadopentetate, gadoterate and gadoteridol in rodent studies, and how does that ordering relate to chelate structure?",
+    "ground_truth": "Gadodiamide showed the most retention, followed by gadopentetate, with gadoterate and gadoteridol roughly equal and lowest. The two lowest are macrocyclic; the two highest are linear, and macrocyclic agents release free gadolinium more slowly.",
+    "relevant_para_ids": [
+      "PMC10287697#p3",
+      "PMC10287697#p1"
+    ]
+  },
+  {
+    "id": "q7",
+    "type": "factual",
+    "question": "Are all linear gadolinium-based contrast agents in ACR Group I?",
+    "ground_truth": "No. The substituted linear agents gadobenate and gadoxetate are Group II, together with the macrocyclic agents, and Group II has been associated with few if any NSF cases.",
+    "relevant_para_ids": [
+      "PMC12746363#p3"
+    ],
+    "note": "Tests whether the model oversimplifies linear = high risk."
+  },
+  {
+    "id": "q8",
+    "type": "numeric",
+    "question": "What is the T1 relaxivity in blood at 1.5 T of gadoxetate?",
+    "ground_truth": "7.3 l/mmol per second.",
+    "relevant_para_ids": [
+      "PMC10957598#p36"
+    ],
+    "note": "Lives in a flattened table. Dense retrieval could not reach tables on 2026-08-04."
+  },
+  {
+    "id": "q9",
+    "type": "unanswerable",
+    "question": "What is the approved gadobutrol dose in mmol/kg for neonates under four weeks of age?",
+    "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
+    "relevant_para_ids": [],
+    "note": "Verify absence before trusting this item."
+  },
+  {
+    "id": "q10",
+    "type": "unanswerable",
+    "question": "What is the list price of a single vial of gadoterate meglumine in Europe?",
+    "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
+    "relevant_para_ids": [],
+    "note": "The corpus discusses cost-effectiveness qualitatively but contains no prices. Verified: no paragraph matches gadolinium + price."
+  }
+]

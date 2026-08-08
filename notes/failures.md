@@ -103,3 +103,50 @@ Latency ran 0.43-0.79 s for the first questions and 7.9-13.8 s for the later one
 model did not slow down; the free tier's 6000 tokens-per-minute cap throttled the batch.
 Any latency figure taken from a back-to-back eval run measures the quota, not the system.
 Latency has to be measured separately, with requests spaced out.
+
+## Correction: tables are reachable, just badly ranked
+
+An earlier entry claimed dense retrieval could not reach tables. Pooling at depth 50
+shows the opposite: the relaxivity table surfaces, it simply never makes the top 15. The
+distinction matters because it changes the fix — reranking rather than hybrid search.
+
+## Ranking failures and representation failures are different problems
+
+Pooling all three variants at depth 15 left five questions with no gold paragraph
+retrieved. Raising pool depth to 50 recovered four of them. Only q3 stays unreachable at
+any depth: the query "eGFR" and the passages about estimated glomerular filtration rate
+never come close, because the embedding treats the acronym as the epidermal growth factor
+receptor.
+
+So the failure budget splits: four cases a reranker can fix by reordering what is already
+retrieved, one case that needs a different representation entirely — hybrid search, query
+expansion, or a biomedical embedding model. Saying "retrieval is weak" would have hidden
+that these need opposite remedies.
+
+## One pool judgement run costs one day of quota
+
+Judging 1359 pooled paragraphs consumed the judge model's entire daily token allowance
+(200k) in about 70 calls. The pool is inflated by the fixed-window variant, whose chunks
+average 3.7 paragraphs each, so a single question can contribute 160 paragraphs to judge.
+
+Consequences worth designing around rather than discovering again: passage snippets sent
+to the judge should be as short as the decision allows, pool depth should be justified by
+where gold paragraphs actually rank rather than chosen for comfort, and any expansion of
+the question set multiplies this cost linearly. A 40-question gold set will need several
+days of judging, or a cheaper judge for the bulk with the strong judge held for a sample.
+
+## Eight questions cannot rank three variants
+
+Strict judgements put contextual first on budget recall (0.292); loose judgements put it
+last (0.220). MRR prefers fixed under strict labels and section under loose ones. With
+eight questions a single item moves any mean by 0.125, so most of these gaps are one
+question changing its mind.
+
+What survives both settings is structural rather than statistical: the fixed-window
+variant fits 3.1 chunks into the serving token budget against 7.3 for section, and its
+success rate drops accordingly (0.444 vs 0.778 under loose labels). The same variant has
+the best recall@20 of the three. Holding k constant and holding tokens constant rank
+these systems in opposite orders.
+
+Also: with 1-4 relevant paragraphs per question under strict labels, recall is close to
+binary and mostly noise. Success@k and MRR are the honest metrics at this scale.

@@ -5,9 +5,9 @@ llm:
   max_tokens: 700
 
 eval_llm:
-  provider: google
-  model: gemini-2.5-flash   # different family from the generator, to avoid self-preference bias
-
+  provider: groq
+  model: openai/gpt-oss-120b   # different family from the llama generator, and a daily
+                               # quota that a pool judgement run can actually fit inside
 retrieval:
   variant: section
   context_token_budget: 2000   # held constant across variants; k floats to fill it

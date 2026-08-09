@@ -3,7 +3,7 @@
     "id": "q1",
     "type": "factual",
     "question": "Which GBCAs did the ACR classify as Group I agents associated with nephrogenic systemic fibrosis?",
-    "ground_truth": "Gadodiamide, gadopentetate and gadoversetamide — first-generation simple linear agents, no longer on the market.",
+    "ground_truth": "Gadodiamide, gadopentetate and gadoversetamide \u2014 first-generation simple linear agents, no longer on the market.",
     "relevant_para_ids": [
       "PMC12746363#p3"
     ],
@@ -93,5 +93,287 @@
     "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
     "relevant_para_ids": [],
     "note": "The corpus discusses cost-effectiveness qualitatively but contains no prices. Verified: no paragraph matches gadolinium + price."
+  },
+  {
+    "id": "q11",
+    "type": "numeric",
+    "question": "What is the typical intravenous dose of a gadolinium-based contrast agent for MRI?",
+    "ground_truth": "0.1 mmol/kg body weight.",
+    "relevant_para_ids": [
+      "PMC12454587#p11"
+    ],
+    "note": "Deliberately easy control item. A variant that misses this has something wrong beyond ranking."
+  },
+  {
+    "id": "q12",
+    "type": "numeric",
+    "question": "What proportion of an administered gadolinium dose can reach the fetus across the placenta?",
+    "ground_truth": "18-30% of the administered dose, confirmed by animal studies.",
+    "relevant_para_ids": [
+      "PMC6306250#p20"
+    ]
+  },
+  {
+    "id": "q13",
+    "type": "numeric",
+    "question": "What range of adverse reaction rates has been reported after a single GBCA administration in pediatric patients?",
+    "ground_truth": "0% to 5.8%.",
+    "relevant_para_ids": [
+      "PMC11614221#p33"
+    ]
+  },
+  {
+    "id": "q14",
+    "type": "numeric",
+    "question": "What reaction rates to gadoteric acid have traditional adverse event monitoring methods estimated?",
+    "ground_truth": "Between 0.12% and 0.97%.",
+    "relevant_para_ids": [
+      "PMC6420614#p32"
+    ]
+  },
+  {
+    "id": "q15",
+    "type": "factual",
+    "question": "Have any clinical signs or adverse outcomes been associated with gadolinium retained in the brain?",
+    "ground_truth": "No. No clinical signs, symptoms or adverse clinical outcomes have yet been associated with retained gadolinium in the brain following repeated administration of any GBCA.",
+    "relevant_para_ids": [
+      "PMC7000570#p27"
+    ],
+    "note": "A negative finding. Tests whether the model asserts harm the corpus does not support."
+  },
+  {
+    "id": "q16",
+    "type": "factual",
+    "question": "In a glioblastoma DCE-MRI study, what advantage did half-dose gadobenate show over full-dose gadoterate?",
+    "ground_truth": "Better parameter estimation, through reduced T2*-shortening effects and improved vascular input function estimation.",
+    "relevant_para_ids": [
+      "PMC10902320#p35"
+    ]
+  },
+  {
+    "id": "q17",
+    "type": "factual",
+    "question": "Who first attributed increased signal intensity in the dentate nucleus and globus pallidus to prior GBCA administration, and in what year?",
+    "ground_truth": "Kanda, in 2014. The phenomenon had been seen earlier but was attributed to multiple sclerosis or brain irradiation.",
+    "relevant_para_ids": [
+      "PMC11282029#p8"
+    ]
+  },
+  {
+    "id": "q18",
+    "type": "factual",
+    "question": "Why should T1 hyperintensities seen after repeated GBCA injections be interpreted with caution?",
+    "ground_truth": "Many patients receiving multiple contrast-enhanced examinations have neoplastic disease, multiple sclerosis or a history of brain radiation, all of which produce high signal on unenhanced T1-weighted images, so the signal may reflect the underlying illness rather than the contrast agent.",
+    "relevant_para_ids": [
+      "PMC10287697#p30"
+    ],
+    "note": "Confounding, not a fact lookup. Tests whether retrieval reaches a caveat rather than the claim it qualifies."
+  },
+  {
+    "id": "q19",
+    "type": "numeric",
+    "question": "What proportion of administered GBCA is excreted in urine, and over what period?",
+    "ground_truth": "Up to 95% within 6-24 hours after injection.",
+    "relevant_para_ids": [
+      "PMC12746363#p33"
+    ]
+  },
+  {
+    "id": "q20",
+    "type": "numeric",
+    "question": "How effective is reverse osmosis at removing anthropogenic gadolinium from water, and what does it cost compared with adsorption?",
+    "ground_truth": "Reverse osmosis removes more than 99% of anthropogenic gadolinium at $0.60-2.50 per cubic metre of treated water; adsorption-based approaches cost less than $0.50 per cubic metre but achieve lower removal efficiency.",
+    "relevant_para_ids": [
+      "PMC12746363#p23"
+    ]
+  },
+  {
+    "id": "q21",
+    "type": "multi_hop",
+    "question": "How many procedures or patients have received gadolinium-based contrast agents since their introduction in 1988?",
+    "ground_truth": "The corpus disagrees: one source states more than 300 million procedures worldwide, another over 450 million patients. Both date the introduction to 1988.",
+    "relevant_para_ids": [
+      "PMC12746363#p1",
+      "PMC8056663#p5"
+    ],
+    "note": "The sources conflict. The prompt instructs the model to say so and cite both; this is the only item that tests that rule."
+  },
+  {
+    "id": "q22",
+    "type": "numeric",
+    "question": "What is the osmolality of gadodiamide?",
+    "ground_truth": "789 mOsm/kg.",
+    "relevant_para_ids": [
+      "PMC10957598#p36"
+    ],
+    "note": "Second item from the same physicochemical table as q8, to tell a systematic table-retrieval failure from a one-off."
+  },
+  {
+    "id": "q23",
+    "type": "factual",
+    "question": "Why must the gadolinium ion be chelated in a contrast agent?",
+    "ground_truth": "Unbound Gd3+ is highly toxic. Its ionic radius is similar to calcium's, so it interferes with calcium-dependent biological processes; the ligand isolates it, reducing toxicity and enabling rapid renal elimination.",
+    "relevant_para_ids": [
+      "PMC12454587#p2"
+    ]
+  },
+  {
+    "id": "q24",
+    "type": "factual",
+    "question": "What symptoms characterise gadolinium deposition disease, and how soon after administration do they appear?",
+    "ground_truth": "Cognitive impairment, bone pain (distinctively rib pain), skin pain, muscle fasciculations and pins-and-needles in the fingers. Onset is often within 24 hours but may occur up to a month after administration.",
+    "relevant_para_ids": [
+      "PMC12454587#p17"
+    ]
+  },
+  {
+    "id": "q25",
+    "type": "factual",
+    "question": "What is SAGE, and when is it meant to be used?",
+    "ground_truth": "Symptoms Associated with Gadolinium Exposure, a nomenclature from the ACR Committee on Drugs and Contrast Media. It covers symptoms that are neither acute reactions nor late-onset NSF, is divided into early- and late-onset groups, and is intended for use when a causal relationship to GBCA exposure is unknown.",
+    "relevant_para_ids": [
+      "PMC12746363#p9"
+    ]
+  },
+  {
+    "id": "q26",
+    "type": "factual",
+    "question": "Why are there no evidence-based therapies for chronic symptoms attributed to gadolinium exposure?",
+    "ground_truth": "There is no consensus on diagnostic criteria for gadolinium deposition disease, so no evidence-based therapy exists; patients are turning to untested treatments such as DTPA and EDTA chelation.",
+    "relevant_para_ids": [
+      "PMC11345262#p38"
+    ]
+  },
+  {
+    "id": "q27",
+    "type": "factual",
+    "question": "Why is zinc used as the competing ion in transmetalation studies of gadolinium chelates?",
+    "ground_truth": "Zinc is the best candidate to compete with gadolinium because of its higher concentration in blood compared with other competing ions such as copper and calcium.",
+    "relevant_para_ids": [
+      "PMC7464237#p27"
+    ]
+  },
+  {
+    "id": "q28",
+    "type": "factual",
+    "question": "How do gadolinium contrast agents inhibit angiotensin-converting enzyme, and is the gadolinium ion responsible?",
+    "ground_truth": "No \u2014 the effect comes from the chelating agent, not Gd3+. Excess unbound ligand outcompetes ACE for zinc, inactivating the enzyme, which indirectly relaxes blood vessels and lowers blood pressure.",
+    "relevant_para_ids": [
+      "PMC7730697#p89"
+    ],
+    "note": "The passage explicitly denies the attribution the question invites. Tests whether the model reads the qualifier."
+  },
+  {
+    "id": "q29",
+    "type": "factual",
+    "question": "What is the regulatory status in Europe of oral manganese chloride tetrahydrate as a contrast agent?",
+    "ground_truth": "It underwent the SPARKLE phase 3 trial for imaging focal liver lesions in patients with severe renal impairment, and remains an investigational medicinal product in Europe, not approved.",
+    "relevant_para_ids": [
+      "PMC12081572#p28"
+    ]
+  },
+  {
+    "id": "q30",
+    "type": "factual",
+    "question": "Why can contrast-enhanced ultrasound be used safely in children with impaired kidney function?",
+    "ground_truth": "Ultrasound contrast agents are microbubbles whose gas is eliminated by exhalation and whose shell undergoes hepatobiliary excretion, so they are not excreted by the kidneys and do not deposit in soft tissue.",
+    "relevant_para_ids": [
+      "PMC12953423#p43"
+    ]
+  },
+  {
+    "id": "q31",
+    "type": "factual",
+    "question": "What is the difference between kinetic inertia and thermodynamic stability for a gadolinium chelate?",
+    "ground_truth": "Kinetic inertia concerns the rate at which Gd3+ is released from the chelate; thermodynamic stability concerns how much Gd3+ is released under stable conditions.",
+    "relevant_para_ids": [
+      "PMC8837552#p3"
+    ]
+  },
+  {
+    "id": "q32",
+    "type": "multi_hop",
+    "question": "How does biliary excretion of gadobenate and gadoxetate differ between humans and rats?",
+    "ground_truth": "In humans, additional biliary excretion is about 4% for gadobenate and 50% for gadoxetate. In rats and rabbits it is much higher: roughly 30-35% for gadobenate and 63-68% for gadoxetate.",
+    "relevant_para_ids": [
+      "PMC10957598#p19",
+      "PMC10957598#p23"
+    ]
+  },
+  {
+    "id": "q33",
+    "type": "multi_hop",
+    "question": "Why might a hepatocyte-specific agent be preferable in patients with impaired renal function?",
+    "ground_truth": "Gadoxetate has a dual excretion pathway, with roughly 50% taken up by hepatocytes and excreted into bile, and dual pathways can compensate when renal elimination is reduced, potentially lowering gadolinium retention in renal dysfunction.",
+    "relevant_para_ids": [
+      "PMC12897084#p3",
+      "PMC10957598#p19"
+    ]
+  },
+  {
+    "id": "q34",
+    "type": "multi_hop",
+    "question": "What two distinct roles does zinc play in the behaviour of gadolinium contrast agents in the body?",
+    "ground_truth": "Zinc displaces gadolinium from its chelate by transmetalation, and is the ion used to test kinetic stability because of its blood concentration. Separately, excess free ligand from the agent outcompetes angiotensin-converting enzyme for zinc, inactivating the enzyme and lowering blood pressure.",
+    "relevant_para_ids": [
+      "PMC7464237#p27",
+      "PMC7730697#p89"
+    ]
+  },
+  {
+    "id": "q35",
+    "type": "multi_hop",
+    "question": "How settled is gadolinium deposition disease as a clinical diagnosis?",
+    "ground_truth": "It is not settled. There is no universally accepted clinical case definition and no consensus diagnostic criteria; the ACR uses the neutral SAGE nomenclature for symptoms of unknown causal relationship, and the entity remains controversial.",
+    "relevant_para_ids": [
+      "PMC11345262#p4",
+      "PMC12454587#p17",
+      "PMC12746363#p9"
+    ]
+  },
+  {
+    "id": "q36",
+    "type": "multi_hop",
+    "question": "Which manganese-based contrast agents are in clinical development, and how far has each progressed?",
+    "ground_truth": "EVP-1001 completed phase II trials for myocardial viability imaging and the nanoparticle formulation SN132D is being tested for breast cancer imaging; oral manganese chloride tetrahydrate completed the SPARKLE phase 3 trial and remains investigational and unapproved in Europe.",
+    "relevant_para_ids": [
+      "PMC11282029#p15",
+      "PMC12081572#p28"
+    ]
+  },
+  {
+    "id": "q37",
+    "type": "multi_hop",
+    "question": "How does ferumoxytol differ from gadolinium agents in renal safety, and at what dose has it been used for MR angiography?",
+    "ground_truth": "Ferumoxytol is an ultrasmall superparamagnetic iron oxide particle that is not nephrotoxic and has not been associated with NSF; it is FDA-approved for iron deficiency anaemia and used off-label for MRI. Reported angiography doses are 3 mg/kg in a case report and 4 mg/kg as a conventional value.",
+    "relevant_para_ids": [
+      "PMC12311432#p2",
+      "PMC12311432#p5",
+      "PMC8370648#p7"
+    ]
+  },
+  {
+    "id": "q38",
+    "type": "unanswerable",
+    "question": "What is the elimination half-life of gadopiclenol in patients on haemodialysis?",
+    "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
+    "relevant_para_ids": [],
+    "note": "Verified: no paragraph matches gadopiclenol together with haemodialysis."
+  },
+  {
+    "id": "q39",
+    "type": "unanswerable",
+    "question": "Are gadolinium-based contrast agents contraindicated in patients with sickle cell disease?",
+    "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
+    "relevant_para_ids": [],
+    "note": "Verified: no paragraph mentions sickle cell disease."
+  },
+  {
+    "id": "q40",
+    "type": "unanswerable",
+    "question": "How many MRI scanners are installed in Germany?",
+    "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
+    "relevant_para_ids": [],
+    "note": "Verified absent. Plausible in a health-services framing, entirely outside a corpus of contrast-agent literature."
   }
 ]

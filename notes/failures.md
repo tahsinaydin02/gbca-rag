@@ -150,3 +150,56 @@ these systems in opposite orders.
 
 Also: with 1-4 relevant paragraphs per question under strict labels, recall is close to
 binary and mostly noise. Success@k and MRR are the honest metrics at this scale.
+
+## Pooling nearly doubled the relevant set, and exposed a reporting bug
+
+Judging the pool found 11 relevant paragraphs beyond the 12 written by hand — the
+hand-authored lists were missing roughly half of what actually answers these questions,
+which is the whole reason the pooling step exists.
+
+The first version of the comparison also reported hand-listed paragraphs as "rejected by
+the judge" when several had simply never entered the pool: no variant retrieved them, so
+they were never shown to the judge. Absence of a judgement is not a negative judgement,
+and conflating the two turns a retrieval failure into an apparent authoring error.
+
+## Truncating passages for the judge costs about 3% of its labels
+
+Passages were cut to 500 characters to fit the judge's daily token budget; 63% of the
+pool is longer than that. Re-judging a sample of 100 truncated passages at full length
+flipped 3 of them — one to RELEVANT, two to PARTIAL.
+
+Extrapolated across 777 truncated-and-NOT passages, roughly eight relevant paragraphs are
+probably missing from a judged set of seventeen. That is small in rate and large in
+proportion, so absolute recall here should be read as a lower bound. Variant comparisons
+are less affected: the same missing denominator applies to all three.
+
+Not re-judged in full. A complete re-run costs a day of quota to move numbers that are
+already bounded by an eight-question sample — the sample size is the larger error term.
+
+## Most of the variant differences are not established at 35 questions
+
+Paired bootstrap and exact McNemar over the same 35 questions:
+
+  fixed vs section      precision p=0.014 (real), recall p=0.094, success p=0.344,
+                        MRR p=0.388
+  fixed vs contextual   recall p=0.029 and precision p=0.001 (real), success p=0.125
+  section vs contextual nothing significant, all differences within +/-0.02
+
+So the earlier claim that section beats fixed "on every metric" was overstated. What
+holds up is that fixed wastes context tokens: its token-weighted precision is lower with
+a confidence interval clear of zero. Its apparent disadvantage on success and MRR is not
+distinguishable from noise.
+
+Success@budget is the most interpretable metric and the least powerful one. Fixed and
+section disagreed on only 10 of 35 questions, split 3-7, and a 70/30 split needs roughly
+27 disagreements to clear p<0.05 — about 95 questions at the observed disagreement rate.
+That is the price of a defensible success comparison, and it is worth knowing before
+writing another thirty questions for the wrong reason.
+
+The section-vs-contextual result is the cleanest thing here: four metrics, four
+differences near zero, intervals excluding any large effect. The contextual prefix costs
+tokens in every chunk and buys nothing measurable, so it goes.
+
+A caveat on the one strong result: token-weighted precision partly measures a structural
+property rather than retrieval quality. Larger chunks carry more irrelevant text by
+construction, so the most significant finding is also the least surprising.

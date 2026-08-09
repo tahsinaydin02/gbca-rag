@@ -33,7 +33,7 @@ def load_paragraphs() -> dict[str, dict]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Pool retrieval results for judging.")
-    ap.add_argument("--depth", type=int, default=15, help="chunks retrieved per variant")
+    ap.add_argument("--depth", type=int, default=40, help="paragraphs contributed per variant")
     args = ap.parse_args()
 
     paragraphs = load_paragraphs()
@@ -47,11 +47,19 @@ def main() -> None:
         best_rank: dict[str, int] = {}
 
         for variant in VARIANTS:
-            hits = search(item["question"], variant, args.depth)
+            # Depth counted in paragraphs, not chunks. The fixed variant carries 3.7
+            # paragraphs per chunk against 1.5 for section, so an equal chunk depth lets
+            # it flood the pool with its own candidates and inflates its measured recall.
+            hits = search(item["question"], variant, args.depth * 4)
+            seen_here: set[str] = set()
             for rank, hit in enumerate(hits, start=1):
                 for pid in hit["para_ids"]:
-                    found_by[pid].add(variant)
-                    best_rank[pid] = min(best_rank.get(pid, 999), rank)
+                    if pid not in seen_here:
+                        seen_here.add(pid)
+                        found_by[pid].add(variant)
+                        best_rank[pid] = min(best_rank.get(pid, 999), rank)
+                if len(seen_here) >= args.depth:
+                    break
 
         gold = set(item["relevant_para_ids"])
         for pid in sorted(found_by, key=lambda p: best_rank[p]):

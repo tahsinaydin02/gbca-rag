@@ -79,7 +79,7 @@ def parse_labels(text: str | None, expected: int) -> dict[int, str]:
 
 def judge_batch(client, model: str, question: str, batch: list[dict]) -> dict[int, str]:
     passages = "\n\n".join(
-        f"[{i}] (section: {p['section']}, {p['kind']})\n{p['text'][:600]}"
+        f"[{i}] (section: {p['section']}, {p['kind']})\n{p['text'][:800]}"
         for i, p in enumerate(batch)
     )
     prompt = f"{INSTRUCTIONS}\n\nQuestion: {question}\n\nPassages:\n\n{passages}"

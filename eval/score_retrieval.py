@@ -66,7 +66,16 @@ def load_relevance(source: str, include_partial: bool = False) -> tuple[list[dic
 def score_question(
     question: str, rel: set[str], variant: str, budget: int, depth: int
 ) -> dict[str, float]:
-    """Score one question under one variant, in the operational token budget."""
+    """Score one question under one variant, in the operational token budget.
+
+    A question with an empty relevant set scores zero rather than being skipped. Under
+    judged relevance that case means no variant surfaced anything the judge accepted, so
+    it is a failure all three share — dropping it would quietly remove the hardest
+    questions from the average and flatter every variant equally.
+    """
+    if not rel:
+        return {"recall": 0.0, "precision": 0.0, "success": 0.0, "mrr": 0.0, "chunks": 0.0}
+
     hits = search(question, variant, depth)
 
     chosen, used = [], 0
@@ -129,7 +138,9 @@ def main() -> None:
 
     budget = load_config()["retrieval"]["context_token_budget"]
     items, relevant = load_relevance(args.source, args.include_partial)
-    answerable = [i for i in items if relevant[i["id"]]]
+    # Answerability comes from the gold set, not from whether retrieval happened to find
+    # something. Selecting on the outcome would drop exactly the questions that failed.
+    answerable = [i for i in items if i["type"] != "unanswerable"]
 
     label = (
         "hand-written lists"

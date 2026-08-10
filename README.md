@@ -63,26 +63,56 @@ hand one variant nearly twice the context and confound the comparison.
 ## Running it
 
     uv sync
-    cp .env.example .env     # Groq key for generation, Gemini key for evaluation
+    cp .env.example .env     # Groq key for generation, a judge key for evaluation
     make ingest              # fetch, parse, chunk  (~30 MB, a few minutes)
     make index               # start Qdrant, embed, load
     make ask Q="Which GBCAs did the ACR classify as Group I agents?"
-    make quick               # ten-question set into notes/quick_review.md
+    make score SOURCE=judged # variant comparison
+    make sig SOURCE=judged   # paired significance tests
+
+## Evaluation
+
+40 questions written from corpus paragraphs — 15 factual, 11 numeric, 9 multi-hop, 4
+unanswerable, plus a deliberately easy control item, an item whose sources contradict each
+other, and an item whose question embeds a premise the passage denies. Ground truth is
+anchored to paragraph ids, so the same set stays valid as chunking changes.
+
+Relevance is defined two ways, and reported both ways because they bound the answer from
+opposite sides. Hand-written lists are independent of retrieval and therefore include
+paragraphs no variant reaches, which makes them pessimistic. The judged pool — every
+variant's retrievals at equal paragraph depth, labelled by a model from a different family
+than the generator — contains only paragraphs something already found, which makes it
+optimistic.
+
+### Results, 36 answerable questions, fixed 2000-token context budget
+
+| Variant | Recall (hand / judged) | Precision (hand / judged) | Success (judged) | Chunks |
+|---|---|---|---|---|
+| `fixed` | 0.319 / 0.358 | 0.044 / 0.091 | 0.639 | 2.9 |
+| `section` | 0.458 / **0.638** | 0.074 / 0.178 | **0.806** | 6.8 |
+| `contextual` | 0.481 / 0.595 | 0.077 / 0.180 | 0.806 | 6.6 |
+
+Paired bootstrap and exact McNemar over the same questions:
+
+- **`fixed` is worse**, and this holds up: recall p=0.001, token-weighted precision
+  p<0.001 under judged relevance, same direction under hand lists. It fits 2.9 chunks into
+  the budget against 6.8, so most of its context window goes to text nobody asked for.
+- **`section` and `contextual` cannot be told apart** under either definition — 4-4 on
+  success, p≥0.22 on everything else. The contextual prefix costs tokens in every chunk
+  and buys nothing measurable, so it is dropped.
+- **Success and MRR never reach significance.** Fixed and section disagree on 12 of 36
+  questions; separating them at this effect size needs roughly 95 questions. That number
+  is reported rather than worked around.
+
+Measured against a fixed *k* instead of a fixed token budget, the ordering reverses and
+`fixed` wins on recall@20. Both numbers are true; only one of them describes a service.
 
 ## Where it stands
 
-Week 1 of four. The pipeline runs end to end and answers questions with citations. A
-ten-question dry run (`eval/quick_set.json`, written from corpus text rather than from
-retriever output) puts the bottleneck squarely in retrieval: a hand-listed gold paragraph
-was retrieved for 3 of 8 answerable questions.
-
-That 3/8 also understates the system, which is its own finding. Three further questions
-were answered correctly from articles that were never in the gold list, because review
-papers restate the same facts. Hand-authored relevance lists are incomplete by
-construction, so week 2 opens with TREC-style pooling before any variant is compared.
-
-Abstention holds so far: four refusals across the set, all defensible, and no fabricated
-answer in the dry run — though one earlier hallucination is on record below.
+Week 2 of four. Retrieval is measured; generation is not yet. Faithfulness and abstention
+rates across the 40 questions are the next thing to exist, and the project's central claim
+— that a grounded answer either rests on its sources or does not — is not yet backed by a
+number.
 
 ## What broke
 
@@ -92,8 +122,16 @@ worth knowing about:
 - **"eGFR" retrieves EGFR.** The renal-function acronym and epidermal growth factor
   receptor are the same string. Lexical search cannot break the tie either. This is the
   strongest argument for the week-2 biomedical-embedding comparison.
-- **Dense retrieval cannot reach tables.** A grid of numbers embeds nothing like a
-  natural-language question, so the answer sits in the index and stays unreachable.
+- **Tables are reachable, just badly ranked.** First recorded as unreachable, which was
+  wrong: pooling deeper surfaces them. The distinction changes the fix from hybrid search
+  to reranking.
+- **The judgement pool rewarded the system that filled it.** Pool depth counted in chunks
+  let the fixed variant, which carries 3.7 paragraphs per chunk against 1.5, contribute
+  two and a half times more candidates — and it duly looked better. Counting depth in
+  paragraphs reversed the result.
+- **Verifying absence by keyword only tests the phrasing you guessed.** A question written
+  as unanswerable, after searching for "sickle cell" and "gadolinium" together, is answered
+  by a passage that says GBCA throughout and never says gadolinium.
 - **Similarity scores are not an abstention signal.** Best score on a well-answered
   question: 0.87. On an unanswered one: 0.81. On an out-of-scope one: 0.75. The ranges
   overlap; refusal has to come from the prompt.
@@ -106,7 +144,9 @@ worth knowing about:
 
 ## Roadmap
 
-- **Week 2** — pool and expand the gold set to 40-50 questions, score with RAGAS,
+- **Week 2, remaining** — faithfulness and abstention over the 40 questions; measure how
+  far the automatic judge sits from a human on a stratified sample
+- **Week 2, done** — pool and expand the gold set to 40-50 questions, score with RAGAS,
   compare the three chunking variants and a second embedding model
 - **Week 3** — tool calling, FastAPI service, Docker Compose, prompt-injection check
 - **Week 4** — tracing, per-request token and cost logging, eval in CI

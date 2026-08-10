@@ -203,3 +203,53 @@ tokens in every chunk and buys nothing measurable, so it goes.
 A caveat on the one strong result: token-weighted precision partly measures a structural
 property rather than retrieval quality. Larger chunks carry more irrelevant text by
 construction, so the most significant finding is also the least surprising.
+
+## Verifying absence with a lexical search only tests the vocabulary you guessed
+
+q39 was written as unanswerable after searching for "sickle cell" together with
+"gadolinium" returned nothing. Pooling then surfaced a passage titled "GBCAs and Patients
+with Sickle Cell Disease", which answers the question directly. It says GBCA throughout
+and never says gadolinium.
+
+This is the fourth question written as unanswerable that the corpus turned out to answer,
+and the first where the cause is precisely identifiable rather than carelessness. The
+lesson generalises past this project: a lexical search proves that a phrasing is absent,
+not that a fact is. Unanswerable items need either a semantic check or several phrasings.
+
+Worth recording that the judgement pool caught it. The apparatus built to measure
+retrieval ended up validating the gold set instead, which is the better argument for
+having built it.
+
+## Selecting questions on the outcome dropped the hardest ones
+
+Scoring filtered to questions with a non-empty relevant set. Under judged relevance,
+three answerable questions (q2, q8, q22) have no relevant paragraph in the pool at all —
+no variant surfaced anything the judge accepted. Filtering removed exactly those three,
+so every variant was being averaged over the questions it had already half-passed.
+
+Answerability now comes from the gold set's own type field, and a question with nothing
+relevant retrieved scores zero for all variants rather than disappearing.
+
+## Two relevance definitions bracket the answer instead of agreeing on one
+
+Scoring the same 36 questions against hand-written relevance lists and against the judged
+pool gives different absolute numbers and the same ordering.
+
+  budget recall     hand 0.319 / 0.458 / 0.481   judged 0.358 / 0.638 / 0.595
+                    (fixed / section / contextual)
+
+I expected judged recall to come out lower, on the grounds that the pool holds more
+relevant paragraphs and so a larger denominator. It came out higher, and the reason is
+worth stating: the pool is built from what retrieval returned, so everything in it is by
+construction findable. The hand-written lists were written by reading articles, so they
+include paragraphs no variant reaches.
+
+That makes them a lower and an upper bound rather than two attempts at one number.
+Retrieval-independent relevance is pessimistic; pool-derived relevance is optimistic; the
+honest statement is that budget recall for section chunking lies between 0.46 and 0.64.
+
+The ordering survives both: fixed is worse on recall (p=0.001) and precision (p<0.001)
+under judged relevance and in the same direction under hand lists, while section and
+contextual stay indistinguishable under both — 4-4 on success, p>=0.22 everywhere else.
+Success and MRR never reach significance under either definition, which is what the power
+calculation predicted and is now confirmed twice.

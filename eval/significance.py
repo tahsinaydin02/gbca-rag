@@ -86,7 +86,7 @@ def main() -> None:
     rng = random.Random(args.seed)
     budget = load_config()["retrieval"]["context_token_budget"]
     items, relevant = load_relevance(args.source, args.include_partial)
-    answerable = [i for i in items if relevant[i["id"]]]
+    answerable = [i for i in items if i["type"] != "unanswerable"]
 
     print(f"{len(answerable)} paired questions, {args.iterations} bootstrap resamples\n")
 

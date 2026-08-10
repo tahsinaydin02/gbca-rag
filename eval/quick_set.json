@@ -362,11 +362,13 @@
   },
   {
     "id": "q39",
-    "type": "unanswerable",
-    "question": "Are gadolinium-based contrast agents contraindicated in patients with sickle cell disease?",
-    "ground_truth": "NOT ANSWERABLE FROM THE PROVIDED PASSAGES",
-    "relevant_para_ids": [],
-    "note": "Verified: no paragraph mentions sickle cell disease."
+    "type": "factual",
+    "question": "Do gadolinium-based contrast agents need to be restricted in patients with sickle cell disease?",
+    "ground_truth": "No. There is no evidence that intravenous GBCAs induce vaso-occlusive or haemolytic events in sickle cell disease, no restriction is envisaged on the basis of sickle cell trait or SCD, and no specific premedication is required.",
+    "relevant_para_ids": [
+      "PMC11051151#p29"
+    ],
+    "note": "Written as unanswerable after a search for 'sickle cell' AND 'gadolinium' returned nothing. The corpus answers it in a passage that says GBCA throughout and never says gadolinium. Reclassified once pooling surfaced it."
   },
   {
     "id": "q40",

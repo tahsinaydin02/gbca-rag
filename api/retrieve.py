@@ -27,7 +27,20 @@ def _model() -> SentenceTransformer:
 
 @functools.lru_cache(maxsize=1)
 def _client() -> QdrantClient:
-    return QdrantClient(url=QDRANT_URL)
+    """Connect, and fail with one readable line rather than a hundred of traceback.
+
+    A stopped container is the most common thing to go wrong here and the least
+    interesting to read about, so it is checked once, up front, before any caller has
+    spent time embedding a query.
+    """
+    client = QdrantClient(url=QDRANT_URL)
+    try:
+        client.get_collections()
+    except Exception as exc:
+        raise SystemExit(
+            f"Qdrant unreachable at {QDRANT_URL} — run `make up` first ({type(exc).__name__})"
+        ) from None
+    return client
 
 
 def search(

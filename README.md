@@ -84,6 +84,12 @@ variant's retrievals at equal paragraph depth, labelled by a model from a differ
 than the generator — contains only paragraphs something already found, which makes it
 optimistic.
 
+The judge itself was checked against a human on thirty passages, stratified by its own
+label. It confirmed 8 of 10 of its own RELEVANT calls, and — the error that would matter —
+none of the passages it dismissed were material a human counted as an answer. Its
+disagreement sits on the PARTIAL/NOT boundary, which never enters the strict relevant set,
+so the numbers below stand and the lenient PARTIAL-inclusive variant is not reported.
+
 ### Results, 36 answerable questions, fixed 2000-token context budget
 
 | Variant | Recall (hand / judged) | Precision (hand / judged) | Success (judged) | Chunks |

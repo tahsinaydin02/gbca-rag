@@ -253,3 +253,30 @@ under judged relevance and in the same direction under hand lists, while section
 contextual stay indistinguishable under both — 4-4 on success, p>=0.22 everywhere else.
 Success and MRR never reach significance under either definition, which is what the power
 calculation predicted and is now confirmed twice.
+
+## The judge is conservative, and conservative in the harmless direction
+
+Thirty passages, stratified ten per judge label, relabelled by hand without seeing the
+judge's verdict:
+
+  judge RELEVANT   8 RELEVANT   2 PARTIAL   0 NOT
+  judge PARTIAL    2 RELEVANT   8 PARTIAL   0 NOT
+  judge NOT        0 RELEVANT   7 PARTIAL   3 NOT
+
+Nothing the judge dismissed was material a human would count as an answer. That is the
+error that matters here: a false NOT removes a relevant paragraph from the gold set
+entirely, so no variant can be credited for finding it and every recall figure drops
+without anything reporting why. Zero of ten.
+
+The disagreement sits almost entirely on the PARTIAL/NOT boundary — the judge calls
+things irrelevant that a human calls background. Since PARTIAL never enters the strict
+relevant set, this leaves every headline number intact and makes the --include-partial
+scoring the unreliable one. It is not reported.
+
+Exact agreement on the stratified sample is 0.63, which is not an accuracy figure: the
+sample was deliberately enriched for the rare labels. Reweighted to the pool's real
+distribution it falls to about 0.38, driven entirely by that same boundary.
+
+Caveats worth stating: one annotator, no blind re-test, and the annotator wrote the
+questions. Agreement measured this way bounds the judge's error, it does not establish
+that the human is right.

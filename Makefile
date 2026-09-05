@@ -2,7 +2,7 @@ VARIANT ?= section
 SOURCE ?= hand
 Q ?= What eGFR threshold has been used to exclude patients from receiving gadolinium-based contrast?
 
-.PHONY: up down fetch parse chunk ingest embed index ask quick score sig agree gen judgetest lint save
+.PHONY: up down fetch parse chunk ingest embed index ask quick score sig agree gen judgetest serve serve-docker smoke lint save
 
 up:
 	docker compose up -d
@@ -36,6 +36,19 @@ gen:
 	uv run python -m eval.score_generation --variant $(VARIANT)
 judgetest:
 	uv run python -m eval.judge_regression
+
+serve:
+	uv run uvicorn api.service:app --reload --port 8000
+serve-docker:
+	docker compose --profile api up -d --build
+smoke:
+	curl -s localhost:8000/health | python3 -m json.tool
+	curl -s -X POST localhost:8000/tools/dose -H 'content-type: application/json' \
+	  -d '{"weight_kg":70,"dose_mmol_per_kg":0.1,"concentration_mmol_per_ml":1.0}' \
+	  | python3 -m json.tool
+	curl -s -X POST localhost:8000/ask -H 'content-type: application/json' \
+	  -d '{"question":"Which GBCAs did the ACR classify as Group I agents?"}' \
+	  | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["answer"]); print(d["sources"])'
 
 lint:
 	uv run ruff check . && uv run ruff format --check .

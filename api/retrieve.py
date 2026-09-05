@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import argparse
 import functools
+import os
 
 from qdrant_client import QdrantClient, models
 from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "BAAI/bge-small-en-v1.5"
-QDRANT_URL = "http://localhost:6333"
+# Overridable so the same code runs from a laptop and from inside the compose network,
+# where the vector store answers to a service name rather than to localhost.
+QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 
 # bge asks for this on the query side only; passages are embedded bare.
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "

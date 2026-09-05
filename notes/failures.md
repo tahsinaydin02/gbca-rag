@@ -352,3 +352,24 @@ invention.
 Which is also the caveat. Faithfulness measured downstream of a retriever this weak is
 measured on easy mode — the model was asked to ground twenty-nine answers, not
 thirty-five. A better retriever would give the same prompt more opportunities to fail.
+
+## Closing note
+
+Twenty-one entries. Reading them back, they fall into three kinds.
+
+Bugs that produced plausible numbers rather than crashes: the regex that ate the leading
+"i" of "Introduction", the judge grading a scratchpad, questions dropped from an average
+because they had failed. None of these threw an exception. Every one was found by looking
+at a distribution or a bucket rather than at a summary line.
+
+Measurement decisions that turned out to be the result: counting pool depth in chunks
+rather than paragraphs, counting precision per chunk rather than per token, holding k
+constant rather than a token budget. In each case the number changed and nothing about
+the system did.
+
+Assumptions about the corpus that were wrong four times running, always in the same
+direction — a question written as unanswerable that the corpus answered. Lexical search
+proves a phrasing is absent, not that a fact is.
+
+The pattern across all three: the failures that cost the most were the ones that looked
+like success.

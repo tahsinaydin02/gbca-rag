@@ -7,3 +7,20 @@ services:
       - "6334:6334"   # gRPC
     volumes:
       - ./data/qdrant:/qdrant/storage
+
+  api:
+    build: .
+    container_name: gbca-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Inside the network the vector store answers to its service name, not to localhost —
+      # localhost in a container is the container.
+      QDRANT_URL: http://qdrant:6333
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    depends_on:
+      - qdrant
+    # Not started by default: `docker compose up -d` should bring up the store the ingest
+    # scripts need without also rebuilding the service. `--profile api` opts in.
+    profiles: ["api"]

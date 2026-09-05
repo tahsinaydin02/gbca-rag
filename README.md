@@ -63,12 +63,33 @@ hand one variant nearly twice the context and confound the comparison.
 ## Running it
 
     uv sync
-    cp .env.example .env     # Groq key for generation, a judge key for evaluation
+    cp .env.example .env     # an API key for the generator and for the judge
     make ingest              # fetch, parse, chunk  (~30 MB, a few minutes)
     make index               # start Qdrant, embed, load
     make ask Q="Which GBCAs did the ACR classify as Group I agents?"
+
+    make serve               # http://localhost:8000/docs
+    make smoke               # health, dose tool, one question end to end
+    make serve-docker        # the same service in a container, behind --profile api
+
     make score SOURCE=judged # variant comparison
     make sig SOURCE=judged   # paired significance tests
+    make gen                 # faithfulness, abstention, citation validity
+    make judgetest           # does the judge still catch a known hallucination
+
+### The service
+
+`POST /ask` returns the answer, the PMCIDs behind it, the passages it was built from, and
+the token and latency figures for that request. `GET /health` reports on the vector store
+rather than on the process, because a health check that only proves the web server booted
+is the kind that stays green while every request fails. `GET /search` exposes retrieval on
+its own, with the section filter the parser exists to make possible.
+
+Two tools are available to the model and, at `POST /tools/dose`, to the caller. Dose
+arithmetic is a multiplication the model does plausibly and occasionally wrongly, and a
+wrong dose reads exactly like a right one. Filtered search is something it cannot do at
+all without being handed the index. A tool the model can call but a caller cannot inspect
+is a tool nobody can check, so both are reachable directly.
 
 ## Evaluation
 
@@ -148,13 +169,20 @@ and that caveat belongs next to the 1.000.
 
 ## Where it stands
 
-Both halves are measured. Retrieval is the bottleneck and the numbers say so from two
-directions: it is where the variant comparison finds real differences, and it is the cause
-of six of the seven times the system declined to answer.
+Both halves are measured and the service is up. Retrieval is the bottleneck and the numbers
+say so from two directions: it is where the variant comparison finds real differences, and
+it is the cause of six of the seven times the system declined to answer.
 
-What is not built: the FastAPI service, tool calling, request tracing and a CI eval gate.
-`make judgetest` is that gate in miniature. The rest is scoped out rather than pending —
-see the roadmap.
+Not built, and scoped out rather than pending: request tracing, a cost dashboard, a
+prompt-injection suite, and a CI job that fails a pull request when eval scores drop.
+`make judgetest` is that last one in miniature — two fixtures, run in seconds, failing
+loudly when the instrument drifts rather than when the system does.
+
+The single most valuable experiment left undone is a reranker. Pooling separated the
+failures into four cases a reranker could fix by reordering what is already retrieved and
+one that needs a different representation entirely; that diagnosis is in hand and the
+experiment is not. Second is a biomedical embedding model, for the eGFR/EGFR collision.
+Both are named here rather than quietly omitted.
 
 ## What broke
 
@@ -183,15 +211,26 @@ worth knowing about:
   bare roman numeral match the leading `i` of "Introduction", pushing 656 paragraphs into
   the catch-all bucket. Nothing crashed; it was found by auditing the bucket.
 - **Measured latency was measuring the rate limit**, not the system.
+- **The first faithfulness run graded the model's scratchpad.** A reasoning model emits its
+  deliberation inside the message content; nothing stripped it, so the judge scored the
+  thinking rather than the answer and returned a plausible 0.964. Stripping it revealed the
+  second failure hiding under the first: the model had spent its entire output budget
+  deliberating and produced no answer at all.
+- **Two models were retired mid-project**, one of them an entire family. Any score here is
+  reproducible only against the model id and date recorded beside it.
 
-## Roadmap
+## What this cost
 
-- **Week 2, remaining** — faithfulness and abstention over the 40 questions; measure how
-  far the automatic judge sits from a human on a stratified sample
-- **Week 2, done** — pool and expand the gold set to 40-50 questions, score with RAGAS,
-  compare the three chunking variants and a second embedding model
-- **Week 3** — tool calling, FastAPI service, Docker Compose, prompt-injection check
-- **Week 4** — tracing, per-request token and cost logging, eval in CI
+40 questions end to end: 89,511 tokens, median 0.86 s per answer. Actual spend was zero —
+everything here runs on free tiers, which is itself a constraint the design had to absorb.
+Judging the relevance pool once consumed an entire day's token allowance, so pool depth was
+chosen from where gold paragraphs actually rank rather than from what felt thorough, and
+the passage snippets sent to the judge were capped, at a measured cost of about 3% of its
+labels.
+
+That is the honest version of a cost table. Priced at the providers' published rates the
+same run would come to a few cents; the number that mattered during development was not
+money but how much evaluation fit inside a day.
 
 ## Licence
 

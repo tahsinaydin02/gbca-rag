@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import uuid
 from pathlib import Path
 
@@ -27,7 +28,7 @@ CACHE_PATH = ROOT / "data" / "emb_cache.npz"
 
 MODEL_NAME = "BAAI/bge-small-en-v1.5"
 DIM = 384
-QDRANT_URL = "http://localhost:6333"
+QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 
 
 def text_key(text: str) -> str:

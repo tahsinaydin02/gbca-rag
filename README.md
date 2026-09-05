@@ -84,6 +84,12 @@ variant's retrievals at equal paragraph depth, labelled by a model from a differ
 than the generator — contains only paragraphs something already found, which makes it
 optimistic.
 
+The judge itself was checked against a human on thirty passages, stratified by its own
+label. It confirmed 8 of 10 of its own RELEVANT calls, and — the error that would matter —
+none of the passages it dismissed were material a human counted as an answer. Its
+disagreement sits on the PARTIAL/NOT boundary, which never enters the strict relevant set,
+so the numbers below stand and the lenient PARTIAL-inclusive variant is not reported.
+
 ### Results, 36 answerable questions, fixed 2000-token context budget
 
 | Variant | Recall (hand / judged) | Precision (hand / judged) | Success (judged) | Chunks |
@@ -107,12 +113,48 @@ Paired bootstrap and exact McNemar over the same questions:
 Measured against a fixed *k* instead of a fixed token budget, the ordering reverses and
 `fixed` wins on recall@20. Both numbers are true; only one of them describes a service.
 
+### Answering, all 40 questions, `section` chunks
+
+Generator `qwen/qwen3.8-27b`, judge `openai/gpt-oss-120b` — different families, so the
+judge is not grading its own homework. Model ids are part of the result: two generators
+were retired by the provider during the four weeks this took.
+
+| | |
+|---|---|
+| Claim-level faithfulness | **1.000** (0 unsupported of 95 claims) |
+| Answers citing an article never retrieved | 0 |
+| Unanswerable questions refused | 4 / 4 |
+| Answerable questions refused | 7 / 36 |
+| — of those, context held nothing relevant | 6 (refusing was correct) |
+| — of those, context held the answer | **1** (the one real generation failure) |
+| Median latency / tokens per question | 0.86 s · 2168 in, 108 out |
+
+A faithfulness of 1.000 is where a measurement usually stops distinguishing things, so the
+judge is checked against two recorded fixtures — a hallucination from an earlier run that
+expanded "cardiac MRI" into "cardiac mitral regurgitation", and an answer known to stay
+inside its sources. It flags the first and clears the second (`make judgetest`). The score
+is a result, not a blind instrument.
+
+The decomposition is the finding. Nineteen percent of answerable questions were refused,
+which sounds like a cautious system — but six of the seven refusals happened because
+retrieval handed the model nothing to work with. The prompt is converting retrieval
+failure into silence rather than into invention, which is what it was written to do. The
+answering layer itself failed once in thirty-six.
+
+Which also means the headline number is not really about the generator: with a perfect
+retriever the same prompt would have had thirty-five chances to hallucinate instead of
+twenty-nine. Faithfulness measured downstream of a weak retriever is measured on easy mode,
+and that caveat belongs next to the 1.000.
+
 ## Where it stands
 
-Week 2 of four. Retrieval is measured; generation is not yet. Faithfulness and abstention
-rates across the 40 questions are the next thing to exist, and the project's central claim
-— that a grounded answer either rests on its sources or does not — is not yet backed by a
-number.
+Both halves are measured. Retrieval is the bottleneck and the numbers say so from two
+directions: it is where the variant comparison finds real differences, and it is the cause
+of six of the seven times the system declined to answer.
+
+What is not built: the FastAPI service, tool calling, request tracing and a CI eval gate.
+`make judgetest` is that gate in miniature. The rest is scoped out rather than pending —
+see the roadmap.
 
 ## What broke
 

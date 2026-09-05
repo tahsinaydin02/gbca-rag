@@ -253,3 +253,102 @@ under judged relevance and in the same direction under hand lists, while section
 contextual stay indistinguishable under both — 4-4 on success, p>=0.22 everywhere else.
 Success and MRR never reach significance under either definition, which is what the power
 calculation predicted and is now confirmed twice.
+
+## The judge is conservative, and conservative in the harmless direction
+
+Thirty passages, stratified ten per judge label, relabelled by hand without seeing the
+judge's verdict:
+
+  judge RELEVANT   8 RELEVANT   2 PARTIAL   0 NOT
+  judge PARTIAL    2 RELEVANT   8 PARTIAL   0 NOT
+  judge NOT        0 RELEVANT   7 PARTIAL   3 NOT
+
+Nothing the judge dismissed was material a human would count as an answer. That is the
+error that matters here: a false NOT removes a relevant paragraph from the gold set
+entirely, so no variant can be credited for finding it and every recall figure drops
+without anything reporting why. Zero of ten.
+
+The disagreement sits almost entirely on the PARTIAL/NOT boundary — the judge calls
+things irrelevant that a human calls background. Since PARTIAL never enters the strict
+relevant set, this leaves every headline number intact and makes the --include-partial
+scoring the unreliable one. It is not reported.
+
+Exact agreement on the stratified sample is 0.63, which is not an accuracy figure: the
+sample was deliberately enriched for the rare labels. Reweighted to the pool's real
+distribution it falls to about 0.38, driven entirely by that same boundary.
+
+Caveats worth stating: one annotator, no blind re-test, and the annotator wrote the
+questions. Agreement measured this way bounds the judge's error, it does not establish
+that the human is right.
+
+## Two model retirements in four weeks
+
+The evaluation model named in the config returned 404 in August. The generation model
+returned 404 in September — by then the provider had dropped its entire Llama line, so
+this was not a version bump but the removal of a family.
+
+For a project whose claim is measurement, this is not an inconvenience, it is the point.
+A score is a statement about a system, and the system includes the model that produced it.
+Any number in this repo is reproducible only against the model id and date recorded beside
+it, and several of the models involved no longer exist to be re-run.
+
+Two habits came out of it. Convenience aliases such as "-latest" are unusable here for
+exactly the reason they are convenient. And when picking a replacement, the model that has
+already survived one catalogue purge beats the newest one: a model that disappears in the
+middle of a measurement costs more than the quality margin a newer one might buy.
+
+## The first faithfulness run graded the model's scratchpad
+
+The replacement generator is a reasoning model and emits a <think> block inside the
+message content. Nothing stripped it, so the block was stored as the answer and passed to
+the faithfulness judge.
+
+Every number in that run was wrong in a different way. Two answers were flagged for citing
+articles never retrieved — the "citations" were half-written identifiers appearing in the
+deliberation, PMC6722 next to the real PMC6722174. Two answers scored zero claims, because
+the judge was handed a page of reasoning and found nothing assertable in it. And refusals
+were over-counted: a model that considers refusing and then decides to answer still writes
+the refusal string in its scratchpad, and the abstention check matched on it.
+
+Faithfulness came out at 0.964, which looked like a good result and measured nothing. The
+scratchpad is not the answer. It is stripped in ask.py now, before anything downstream
+sees it, and the run was discarded rather than reported.
+
+## Stripping the scratchpad revealed there was nothing behind it
+
+With the <think> block removed, 33 of 37 answers came back empty. The completion token
+count explains it: 700 out of 700, every time. The model spent its entire budget
+deliberating, was cut off mid-thought, and never reached an answer. The first run had not
+been measuring a bad answer — it had been measuring the absence of one.
+
+Two failures stacked here, and the first hid the second. Leaving reasoning in the answer
+produced a plausible-looking 0.964 faithfulness. Removing it produced empty strings that
+scored 0/0 and still looked like passing rows. Neither run would have looked alarming to
+someone reading only the summary line.
+
+Reasoning is now switched off at the API rather than stripped after the fact. Summarising
+passages already placed in front of the model is not a task that needs deliberation, and
+paying for it in a fixed output budget costs the answer itself.
+
+## A perfect score, and what had to be done before believing it
+
+The third generation run scored 1.000 claim-level faithfulness: zero unsupported claims in
+ninety-five, zero citations to articles never retrieved. Given the two previous runs had
+produced a plausible 0.964 from the model's scratchpad and a meaningless 0/0 from empty
+answers, a clean sweep was the least trustworthy possible result.
+
+So the judge was tested rather than believed. Two fixtures in opposite directions: a
+hallucination recorded on 2026-08-05, where the model expanded "cardiac MRI" into "cardiac
+mitral regurgitation" and cited the passage it had contradicted, and an answer known to
+stay inside its sources. The judge flags the first (1 of 3 claims) and clears the second
+(0 of 5). It separates the directions, so the score stands.
+
+The decomposition matters more than the score. Seven of thirty-six answerable questions
+were refused, but six of those seven had no relevant paragraph in the context at all —
+refusing was correct. Only one refusal came with the answer sitting in the context. The
+abstention rule is doing its job: turning retrieval failure into silence instead of
+invention.
+
+Which is also the caveat. Faithfulness measured downstream of a retriever this weak is
+measured on easy mode — the model was asked to ground twenty-nine answers, not
+thirty-five. A better retriever would give the same prompt more opportunities to fail.

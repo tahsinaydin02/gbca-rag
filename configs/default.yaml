@@ -1,13 +1,19 @@
 llm:
   provider: groq
-  model: llama-3.3-70b-versatile
+  # Was llama-3.3-70b-versatile until the provider retired the whole Llama line, then
+  # qwen3.6-27b until two discarded evaluation runs exhausted that model's daily token
+  # allowance. Quotas are per model, so moving to the sibling id bought a fresh budget on
+  # the same day — worth knowing when a free tier is the binding constraint.
+  model: qwen/qwen3.8-27b
   temperature: 0.0          # a summariser over given text has nothing to be creative about
   max_tokens: 700
+  reasoning_effort: none    # see ask.py: with reasoning on, the whole budget went to the
+                            # scratchpad and no answer was produced
 
 eval_llm:
   provider: groq
-  model: openai/gpt-oss-120b   # different family from the llama generator, and a daily
-                               # quota that a pool judgement run can actually fit inside
+  model: openai/gpt-oss-120b   # different family from the generator, so it is not grading
+                               # its own homework, and a daily quota a judging run fits in
 retrieval:
   variant: section
   context_token_budget: 2000   # held constant across variants; k floats to fill it

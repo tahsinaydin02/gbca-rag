@@ -29,11 +29,12 @@ import os
 import re
 import time
 from collections import Counter
+from functools import partial
 from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
-from groq import Groq
+from groq import Groq, RateLimitError
 
 from api.ask import ask, build_context, load_config, select_hits
 
@@ -62,6 +63,23 @@ UNSUPPORTED: <number of claims the passages do not support>
 DETAIL: <one short line per unsupported claim, or "none">"""
 
 
+def with_backoff(call, attempts: int = 6):
+    """Retry through rate limits instead of losing the run to them.
+
+    The free tier's daily token cap is a rolling window, so waiting is usually enough.
+    Without this, one 429 partway through discards nothing already saved but does stop the
+    run, and restarting costs another round of quota to reach the same point.
+    """
+    for attempt in range(attempts):
+        try:
+            return call()
+        except RateLimitError:
+            wait = 60 * (attempt + 1)
+            print(f"    rate limited, waiting {wait}s")
+            time.sleep(wait)
+    raise RuntimeError("still rate limited after several waits")
+
+
 def judge_faithfulness(client, model: str, context: str, answer: str) -> tuple[int, int, str]:
     prompt = f"{JUDGE_PROMPT}\n\nPassages:\n\n{context}\n\nAnswer:\n\n{answer}"
     for attempt in range(4):
@@ -79,6 +97,8 @@ def judge_faithfulness(client, model: str, context: str, answer: str) -> tuple[i
             unsupported = int(re.search(r"UNSUPPORTED:\s*(\d+)", text).group(1))
             detail = re.search(r"DETAIL:\s*(.*)", text, re.S)
             return total, unsupported, (detail.group(1).strip() if detail else "")
+        except RateLimitError:
+            raise  # handled by with_backoff, which waits in minutes rather than seconds
         except Exception as exc:
             wait = 15 * (attempt + 1)
             print(f"    retry in {wait}s ({type(exc).__name__})")
@@ -111,7 +131,7 @@ def main() -> None:
 
         hits = select_hits(item["question"], cfg)
         context = build_context(hits)
-        out = ask(item["question"], cfg)
+        out = with_backoff(partial(ask, item["question"], cfg))
         answer = out["answer"].strip()
         abstained = REFUSAL in answer.upper()
 
@@ -134,7 +154,9 @@ def main() -> None:
         }
 
         if not abstained:
-            total, unsupported, detail = judge_faithfulness(client, judge_model, context, answer)
+            total, unsupported, detail = with_backoff(
+                partial(judge_faithfulness, client, judge_model, context, answer)
+            )
             record |= {"claims": total, "unsupported": unsupported, "detail": detail}
             time.sleep(args.sleep)
 

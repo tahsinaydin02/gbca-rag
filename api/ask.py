@@ -15,13 +15,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
-from groq import Groq
+from groq import BadRequestError, Groq
 
 from api.retrieve import search
 
@@ -78,22 +79,59 @@ def select_hits(question: str, cfg: dict, section: str | None = None) -> list[di
     return chosen
 
 
+THINK_BLOCK = re.compile(r"<think>.*?(</think>|\Z)", re.S | re.I)
+
+
+def strip_reasoning(text: str) -> str:
+    """Remove the model's scratchpad from the answer.
+
+    Reasoning models emit a <think> block inside the content. Left in, it is treated as
+    part of the answer by everything downstream: the faithfulness judge grades the
+    model's deliberation rather than its conclusion, the citation check flags half-written
+    identifiers the model was still assembling, and a refusal considered and rejected mid
+    thought reads as a refusal. The scratchpad is not the answer and does not belong in
+    anything measured.
+    """
+    return THINK_BLOCK.sub("", text).strip()
+
+
 def ask(question: str, cfg: dict, section: str | None = None) -> dict:
     load_dotenv()
     hits = select_hits(question, cfg, section)
     context = build_context(hits)
 
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": f"Passages:\n\n{context}\n\nQuestion: {question}"},
+    ]
+    # Reasoning is switched off rather than hidden. A reasoning model spent its entire
+    # 700-token budget deliberating and emitted no answer at all — the completion was all
+    # scratchpad, truncated mid-thought. Summarising passages that are already in front of
+    # you is not a task that needs deliberation, and paying for it twice (once in tokens,
+    # once in a truncated answer) buys nothing here.
+    extra = {"reasoning_effort": cfg["llm"].get("reasoning_effort")}
+    extra = {k: v for k, v in extra.items() if v}
+
     started = time.perf_counter()
-    resp = client.chat.completions.create(
-        model=cfg["llm"]["model"],
-        temperature=cfg["llm"]["temperature"],
-        max_tokens=cfg["llm"]["max_tokens"],
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Passages:\n\n{context}\n\nQuestion: {question}"},
-        ],
-    )
+    try:
+        resp = client.chat.completions.create(
+            model=cfg["llm"]["model"],
+            temperature=cfg["llm"]["temperature"],
+            max_tokens=cfg["llm"]["max_tokens"],
+            messages=messages,
+            **extra,
+        )
+    except BadRequestError:
+        # Only a rejected parameter is worth retrying without it. Catching everything here
+        # meant a rate-limit error triggered a second identical call, spending quota twice
+        # to fail twice.
+        resp = client.chat.completions.create(
+            model=cfg["llm"]["model"],
+            temperature=cfg["llm"]["temperature"],
+            max_tokens=cfg["llm"]["max_tokens"],
+            messages=messages,
+        )
     latency = time.perf_counter() - started
 
     record = {
@@ -109,7 +147,7 @@ def ask(question: str, cfg: dict, section: str | None = None) -> dict:
         "prompt_tokens": resp.usage.prompt_tokens,
         "completion_tokens": resp.usage.completion_tokens,
         "latency_s": round(latency, 3),
-        "answer": resp.choices[0].message.content,
+        "answer": strip_reasoning(resp.choices[0].message.content or ""),
     }
     with LOG_PATH.open("a") as fh:
         fh.write(json.dumps(record) + "\n")

@@ -2,7 +2,7 @@ VARIANT ?= section
 SOURCE ?= hand
 Q ?= What eGFR threshold has been used to exclude patients from receiving gadolinium-based contrast?
 
-.PHONY: up down fetch parse chunk ingest embed index ask quick score sig agree gen lint save
+.PHONY: up down fetch parse chunk ingest embed index ask quick score sig agree gen judgetest lint save
 
 up:
 	docker compose up -d
@@ -34,6 +34,8 @@ agree:
 	uv run python -m eval.agreement
 gen:
 	uv run python -m eval.score_generation --variant $(VARIANT)
+judgetest:
+	uv run python -m eval.judge_regression
 
 lint:
 	uv run ruff check . && uv run ruff format --check .

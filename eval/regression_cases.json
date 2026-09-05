@@ -1,0 +1,44 @@
+[
+  {
+    "id": "known_hallucination",
+    "question": "What is the recommended anesthesia protocol for pediatric cardiac MRI?",
+    "context_para_ids": [
+      "PMC5292614#p47",
+      "PMC5292614#p48",
+      "PMC5292614#p49",
+      "PMC5292614#p50",
+      "PMC5292614#p13",
+      "PMC5292614#p14",
+      "PMC5292614#p15",
+      "PMC5292614#p16",
+      "PMC9668776#p13",
+      "PMC9668776#p14",
+      "PMC9700591#p5",
+      "PMC3492017#p0",
+      "PMC3492017#p1",
+      "PMC3492017#p2",
+      "PMC5725400#p14"
+    ],
+    "answer": "According to [PMC9668776], the anesthesia protocol for pediatric cardiac MRI involves general anesthesia induced by propofol (1 ml/kg body weight, 1%). Additionally, [PMC5292614] mentions that patients younger than 8 years old underwent cardiac mitral regurgitation (MR) under general anesthesia. However, the specific details of the anesthesia protocol are only provided in [PMC9668776].",
+    "expect_unsupported_at_least": 1,
+    "why": "The answer expands 'cardiac MRI' into 'cardiac mitral regurgitation (MR)', a claim the passage does not make. Recorded from a run on 2026-08-05 with a generator that has since been retired. A judge that scores this clean is not measuring what it claims to measure."
+  },
+  {
+    "id": "known_faithful",
+    "question": "Which GBCAs did the ACR classify as Group I agents associated with nephrogenic systemic fibrosis?",
+    "context_para_ids": [
+      "PMC12746363#p3",
+      "PMC12454587#p9",
+      "PMC4468111#p0",
+      "PMC4468111#p1",
+      "PMC7853837#p0",
+      "PMC11870253#p4",
+      "PMC7156386#p3",
+      "PMC3492017#p12",
+      "PMC3492017#p13"
+    ],
+    "answer": "According to the American College of Radiology (ACR) classification, Group I agents are simple linear agents that were associated with nephrogenic systemic fibrosis (NSF) and are no longer on the market [PMC12746363]. The specific agents listed in this group are gadodiamide, gadopentetate, and gadoversetamide [PMC12746363]. Another passage describes Group I as containing linear agents such as gadodiamide and gadopentetate dimeglumine [PMC12454587].",
+    "expect_unsupported_at_most": 0,
+    "why": "Counterweight to the case above. A judge that flags everything would pass the hallucination test for the wrong reason, so one answer known to stay inside its sources is checked in the other direction."
+  }
+]
